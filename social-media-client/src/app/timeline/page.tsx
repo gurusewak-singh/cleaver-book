@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { RefreshCw, Search, Bell, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
-
+import { ShimmerSkeleton } from '@/components/ui/shimmer-skeleton';
 import api from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useSearchStore } from '@/lib/store';
@@ -69,18 +69,23 @@ function TimelineContent() {
 
   if (!user) return null;
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-4 max-w-2xl">
-        <h1 className="text-2xl font-bold mb-4">Timeline</h1>
-        <div className="space-y-4">
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-32 w-full" />
+if (isLoading) {
+  return (
+    <div className="container mx-auto p-4 max-w-2xl">
+      <div className="flex justify-between items-center mb-6 gap-4">
+        <ShimmerSkeleton className="h-10 w-48" /> {/* Skeleton for the title */}
+        <div className="flex gap-2">
+          <ShimmerSkeleton className="h-10 w-10 rounded-full" />
+          <ShimmerSkeleton className="h-10 w-10 rounded-full" />
         </div>
       </div>
-    );
-  }
+      <div className="space-y-4">
+        <ShimmerSkeleton className="h-32 w-full" />
+        <ShimmerSkeleton className="h-32 w-full" />
+      </div>
+    </div>
+  );
+}
 
   const containerVariants = {
     hidden: { opacity: 0 },
