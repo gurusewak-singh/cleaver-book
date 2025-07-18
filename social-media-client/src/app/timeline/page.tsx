@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { RefreshCw, Search, Bell, LogOut } from 'lucide-react';
+import { RefreshCw, Search, Bell, LogOut, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ShimmerSkeleton } from '@/components/ui/shimmer-skeleton';
 import api from '@/lib/api';
@@ -69,23 +69,23 @@ function TimelineContent() {
 
   if (!user) return null;
 
-if (isLoading) {
-  return (
-    <div className="container mx-auto p-4 max-w-2xl">
-      <div className="flex justify-between items-center mb-6 gap-4">
-        <ShimmerSkeleton className="h-10 w-48" /> {/* Skeleton for the title */}
-        <div className="flex gap-2">
-          <ShimmerSkeleton className="h-10 w-10 rounded-full" />
-          <ShimmerSkeleton className="h-10 w-10 rounded-full" />
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4 max-w-2xl">
+        <div className="flex justify-between items-center mb-6 gap-4">
+          <ShimmerSkeleton className="h-10 w-48" /> {/* Skeleton for the title */}
+          <div className="flex gap-2">
+            <ShimmerSkeleton className="h-10 w-10 rounded-full" />
+            <ShimmerSkeleton className="h-10 w-10 rounded-full" />
+          </div>
+        </div>
+        <div className="space-y-4">
+          <ShimmerSkeleton className="h-32 w-full" />
+          <ShimmerSkeleton className="h-32 w-full" />
         </div>
       </div>
-      <div className="space-y-4">
-        <ShimmerSkeleton className="h-32 w-full" />
-        <ShimmerSkeleton className="h-32 w-full" />
-      </div>
-    </div>
-  );
-}
+    );
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -108,50 +108,36 @@ if (isLoading) {
       <div className="flex justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold whitespace-nowrap">Timeline</h1>
         <div className="flex-grow flex justify-end items-center gap-2">
-          {/* ✅ UPDATED: Search is now a direct link */}
+          {/* --- TOUCH OPTIMIZATION --- */}
           <Link href="/users" passHref>
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label="Search users"
-              className="cursor-pointer"
-            >
-              <Search className="h-4 w-4" />
+            <Button variant="outline" size="icon" aria-label="Search users" className="cursor-pointer h-11 w-11 md:h-10 md:w-10">
+              <Search className="h-5 w-5 md:h-4 md:w-4" />
             </Button>
           </Link>
-
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={fetchTimeline}
-            aria-label="Refresh timeline"
-            className="cursor-pointer"
-          >
-            <RefreshCw className="h-4 w-4" />
+          
+          <Button variant="outline" size="icon" onClick={fetchTimeline} aria-label="Refresh timeline" className="cursor-pointer h-11 w-11 md:h-10 md:w-10">
+            <RefreshCw className="h-5 w-5 md:h-4 md:w-4" />
           </Button>
+
           <Link href="/notifications" passHref>
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label="Notifications"
-              className="cursor-pointer"
-            >
-              <Bell className="h-4 w-4" />
+            <Button variant="outline" size="icon" aria-label="Notifications" className="cursor-pointer h-11 w-11 md:h-10 md:w-10">
+              <Bell className="h-5 w-5 md:h-4 md:w-4" />
             </Button>
           </Link>
-          <Link href="/create-post" passHref>
-            <Button className="cursor-pointer">Create Post</Button>
-          </Link>
 
-          {/* --- PROFILE DROPDOWN + LOGOUT DIALOG --- */}
+          {/* The Create Post button is already larger, but let's ensure its icon is sized well */}
+          <Link href="/create-post" passHref>
+            <Button className="cursor-pointer">
+              <Plus className="h-5 w-5 md:mr-2 md:h-4 md:w-4" />
+              <span className="hidden md:inline">Create Post</span>
+            </Button>
+          </Link>
+          
+          {/* The profile button is also a good candidate for this treatment */}
           <AlertDialog>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-full h-10 w-10 cursor-pointer"
-                >
+                <Button variant="outline" className="relative h-11 w-11 md:h-10 md:w-10 rounded-full cursor-pointer">
                   <div className="flex items-center justify-center h-full w-full bg-muted rounded-full">
                     {user.username.charAt(0).toUpperCase()}
                   </div>

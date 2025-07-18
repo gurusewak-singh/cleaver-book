@@ -131,6 +131,22 @@ function UsersContent() {
     user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+  };
+
   return (
     <div className="container mx-auto p-4 max-w-2xl">
       {/* --- HEADER --- */}
@@ -157,56 +173,81 @@ function UsersContent() {
             )}
           </AnimatePresence>
 
-          <Button variant="outline" size="icon" onClick={handleCloseSearch} className="cursor-pointer">
-            <X className="h-4 w-4" />
+          <Button variant="outline" size="icon" onClick={handleCloseSearch} className="cursor-pointer h-11 w-11 md:h-10 md:w-10">
+            <X className="h-5 w-5 md:h-4 md:w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={fetchAllUserData} className="cursor-pointer">
-            <RefreshCw className="h-4 w-4" />
+          <Button variant="outline" size="icon" onClick={fetchAllUserData} className="cursor-pointer h-11 w-11 md:h-10 md:w-10">
+            <RefreshCw className="h-5 w-5 md:h-4 md:w-4" />
           </Button>
         </div>
       </div>
 
       {/* --- USER LIST --- */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredUsers.map((user) => {
-          const isFollowing = following.has(user._id);
-          const isPending = sentRequests.has(user._id);
-          const hasRequestedToFollowMe = receivedRequests.has(user._id);
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <AnimatePresence>
+          {filteredUsers.map((user) => {
+            const isFollowing = following.has(user._id);
+            const isPending = sentRequests.has(user._id);
+            const hasRequestedToFollowMe = receivedRequests.has(user._id);
 
-          let status: 'not_following' | 'following' | 'pending' | 'respond' = 'not_following';
-          let buttonText = 'Follow';
-          let buttonVariant: 'default' | 'secondary' | 'outline' = 'default';
-          let actionHandler: () => void = () => handleUserAction(user._id, status as any);
+            let status: 'not_following' | 'following' | 'pending' | 'respond' = 'not_following';
+            let buttonText = 'Follow';
+            let actionHandler: () => void = () => handleUserAction(user._id, status as any);
 
-          if (isFollowing) {
-            status = 'following';
-            buttonText = 'Following';
-            buttonVariant = 'secondary';
-          } else if (isPending) {
-            status = 'pending';
-            buttonText = 'Pending';
-            buttonVariant = 'outline';
-          } else if (hasRequestedToFollowMe) {
-            status = 'respond';
-            buttonText = 'Accept';
-            buttonVariant = 'default';
-            actionHandler = () => handleAcceptRequest(user._id);
-          }
+            if (isFollowing) {
+              status = 'following';
+              buttonText = 'Following';
+            } else if (isPending) {
+              status = 'pending';
+              buttonText = 'Pending';
+            } else if (hasRequestedToFollowMe) {
+              status = 'respond';
+              buttonText = 'Accept';
+              actionHandler = () => handleAcceptRequest(user._id);
+            }
 
-          return (
-            <Card key={user._id}>
-              <CardHeader>
-                <CardTitle>{user.username}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button variant={buttonVariant} onClick={actionHandler} className="cursor-pointer">
-                  {buttonText}
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+            return (
+              <motion.div 
+                key={user._id} 
+                variants={itemVariants}
+                layout
+              >
+                {/* We make the Card itself a button for the primary action */}
+                <button
+                  className="w-full text-left rounded-lg"
+                  onClick={actionHandler}
+                  aria-label={`${buttonText} ${user.username}`}
+                >
+                  <Card className="transition-transform duration-200 hover:scale-[1.02] hover:shadow-lg">
+                    <CardHeader className="flex-row items-center justify-between pb-2">
+                      <CardTitle>{user.username}</CardTitle>
+                      {/* We can show the button state as a visual indicator, not the primary action target */}
+                      <div 
+                        className={`px-3 py-1 text-xs rounded-full
+                          ${isFollowing ? 'bg-secondary text-secondary-foreground' : ''}
+                          ${isPending ? 'bg-muted text-muted-foreground' : ''}
+                          ${hasRequestedToFollowMe ? 'bg-primary text-primary-foreground' : ''}
+                          ${!isFollowing && !isPending && !hasRequestedToFollowMe ? 'bg-primary text-primary-foreground' : ''}
+                        `}
+                      >
+                        {buttonText}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">Click card to {buttonText.toLowerCase()}</p>
+                    </CardContent>
+                  </Card>
+                </button>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 }
